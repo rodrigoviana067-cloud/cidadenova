@@ -14,18 +14,20 @@ jobs:
       - name: Checkout código
         uses: actions/checkout@v4
 
-      - name: Instalar Suporte 32-bit (Obrigatório em 2026)
+      - name: Instalar Suporte 32-bit (Ubuntu 2026)
         run: |
           sudo dpkg --add-architecture i386
           sudo apt-get update
           sudo apt-get install -y libc6:i386 libncurses6:i386 libstdc++6:i386 libtinfo6:i386
+          # Resolve a dependência da v5 exigida pelo compilador antigo
           sudo ln -s /usr/lib/i386-linux-gnu/libncurses.so.6 /usr/lib/i386-linux-gnu/libncurses.so.5
           sudo ln -s /usr/lib/i386-linux-gnu/libtinfo.so.6 /usr/lib/i386-linux-gnu/libtinfo.so.5
 
-      - name: Baixar Compilador Pawn Zeex 3.10.10
+      - name: Baixar Compilador Pawn (LINK DIRETO DA CDN)
         run: |
-          # Este é o link do arquivo contido na página de releases que você enviou:
-          curl -L "https://github.com/pawn-lang/compiler/releases"
+          # Este link aponta diretamente para o arquivo binário, ignorando a página HTML
+          curl -L "https://github.com" -o pawnc.tar.gz
+          tar -zxvf pawnc.tar.gz
           echo "$(pwd)/bin" >> $GITHUB_PATH
           chmod +x ./bin/pawncc
 
@@ -38,11 +40,11 @@ jobs:
       - name: Compilar Gamemode
         run: |
           mkdir -p gamemodes
-          # O comando abaixo usa o arquivo que você criou na pasta gamemodes
+          # O comando abaixo compila o seu script principal
           ./bin/pawncc gamemodes/cidade2026.pwn -i"include" -o"gamemodes/cidade2026.amx" -d3 -Z+ -;+
 
-      - name: Fazer Upload do AMX
+      - name: Upload do AMX
         uses: actions/upload-artifact@v4
         with:
-          name: Cidade-Futurista-AMX-2026
+          name: Cidade-Futurista-2026
           path: gamemodes/cidade2026.amx
