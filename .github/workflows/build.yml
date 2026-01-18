@@ -1,10 +1,6 @@
 name: Compilar Cidade Futurista 2026
 
-on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+on: [push, pull_request]
 
 jobs:
   build:
@@ -14,28 +10,35 @@ jobs:
       - name: Checkout código
         uses: actions/checkout@v4
 
-      - name: Instalar Compilador Pawn (3.10.10)
-        # Usando a action oficial mantida pela comunidade open.mp
-        uses: southclaws/setup-pawn@v1
-        with:
-          version: 3.10.10
-
-      - name: Baixar Bibliotecas open.mp (Obrigatório)
+      - name: Instalar Dependências 32-bit (Essencial para Pawn)
         run: |
-          # Baixa as definições oficiais para não dar erro de versão
+          sudo dpkg --add-architecture i386
+          sudo apt-get update
+          sudo apt-get install -y libc6:i386 libncurses5:i386 libstdc++6:i386
+
+      - name: Baixar Compilador Pawn Zeex 3.10.10
+        run: |
+          # Download direto via CDN para evitar erro de redirecionamento
+          curl -L "https://github.com" -o pawn.tar.gz
+          tar -xvzf pawn.tar.gz
+          echo "$(pwd)/bin" >> $GITHUB_PATH
+
+      - name: Configurar Bibliotecas open.mp (2026)
+        run: |
+          # Baixa as Includes oficiais para evitar erro de versão
           git clone --depth 1 https://github.com omp_lib
-          mkdir -p dependencies
-          cp -r omp_lib/*.inc dependencies/
+          mkdir -p include
+          cp -r omp_lib/*.inc include/
 
-      - name: Compilar Gamemode 2026
+      - name: Compilar Gamemode
         run: |
-          # Cria a pasta caso não exista
+          # Garante que a pasta existe e compila
           mkdir -p gamemodes
-          # Compila o código apontando para as novas bibliotecas
-          pawncc gamemodes/cidade2026.pwn -i"dependencies" -o"gamemodes/cidade2026.amx" -d3 -Z+ -;+
+          # -iinclude diz para o compilador usar a pasta que criamos com o open.mp
+          ./bin/pawncc gamemodes/cidade2026.pwn -i"include" -o"gamemodes/cidade2026.amx" -d3 -Z+ -;+
 
-      - name: Upload do AMX (Download disponível no GitHub)
+      - name: Upload da Cidade 2026
         uses: actions/upload-artifact@v4
         with:
-          name: Cidade-Futurista-2026-AMX
+          name: Cidade-Futurista-AMX
           path: gamemodes/cidade2026.amx
