@@ -14,14 +14,15 @@ jobs:
       - name: Checkout código
         uses: actions/checkout@v4
 
-      - name: Instalar Compilador Pawn e Dependências
-        uses: samp-actions/setup-pawn@master
-        with:
-          pawn-version: 3.10.10
+      - name: Instalar Compilador Pawn 3.10.10
+        run: |
+          wget https://www.compilgames.net/downloads/pawn/3.10.10/pawnc-3.10.10-linux.tar.gz -O pawnc.tar.gz
+          tar -xzf pawnc.tar.gz
+          sudo mv pawnc-3.10.10/bin/* /usr/local/bin/
+          rm -rf pawnc-3.10.10 pawnc.tar.gz
 
       - name: Baixar Includes open.mp
         run: |
-          # Baixa as definições oficiais para evitar erro de versão
           git clone --depth 1 https://github.com/OpenMultiPlayer/omp-lib.git omp_lib
           mkdir -p dependencies
           cp -r omp_lib/*.inc dependencies/
@@ -29,7 +30,6 @@ jobs:
       - name: Compilar Gamemode
         run: |
           mkdir -p gamemodes
-          # Corrigido: removido '-;+' que não é necessário, adicionada citação correta
           pawncc gamemodes/cidade2026.pwn -i"dependencies" -o"gamemodes/cidade2026.amx" -d3 -Z+
 
       - name: Fazer Upload do AMX (Download disponível no GitHub)
