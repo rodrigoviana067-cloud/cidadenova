@@ -17,17 +17,18 @@ jobs:
       - name: Instalar dependências do sistema
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential git wget
+          sudo apt-get install -y build-essential git
 
       - name: Baixar e compilar Pawn 3.10.10
         run: |
-          wget https://github.com/compilgames/pawn/archive/refs/tags/3.10.10.tar.gz -O pawn.tar.gz
-          tar -xzf pawn.tar.gz
-          cd pawn-3.10.10/compiler
+          git clone https://github.com/compilgames/pawn.git
+          cd pawn
+          git checkout 3.10.10
+          cd compiler
           make
           sudo cp pawncc /usr/local/bin/
           cd ../..
-          rm -rf pawn-3.10.10 pawn.tar.gz
+          rm -rf pawn
 
       - name: Baixar Includes open.mp
         run: |
