@@ -1,4 +1,4 @@
-name: Compilar e Publicar Cidade 2026
+name: Compilar Cidade Futurista 2026
 
 on:
   push:
@@ -14,31 +14,29 @@ jobs:
       - name: Checkout Código
         uses: actions/checkout@v4
 
-      - name: Instalar Compilador Pawn (v3.10.10)
+      - name: Baixar Compilador Pawn (Link Direto)
         run: |
-          wget https://github.com
-          tar -zxvf pawnc-3.10.10-linux.tar.gz
+          # Usando curl -L para evitar o erro de baixar index.html
+          curl -L -o pawnc.tar.gz https://github.com
+          tar -zxvf pawnc.tar.gz
           sudo cp bin/pawncc /usr/local/bin/
+          sudo chmod +x /usr/local/bin/pawncc
 
-      - name: Compilar Gamemode 2026
-        run: |
-          pawncc gamemodes/cidade2026.pwn -i"dependencies" -o"gamemodes/cidade2026.amx" -d3 -Z+ -;+
-
-      - name: Baixar Includes open.mp (Obrigatório)
+      - name: Baixar Includes open.mp (2026 Edition)
         run: |
           git clone --depth 1 https://github.com omp_lib
           mkdir -p dependencies
           cp -r omp_lib/*.inc dependencies/
 
-      - name: Compilar Script
+      - name: Compilar Gamemode
         run: |
-          # Compila o database.pwn e gera o database.amx
-          # -i define onde o compilador busca as bibliotecas
-          pawncc filterscripts/database.pwn -i"dependencies" -o"filterscripts/database.amx" -d3 -Z+ -;+
+          # Verifica se a pasta gamemodes existe, se não, cria
+          mkdir -p gamemodes
+          # Compila o gamemode
+          pawncc gamemodes/cidade2026.pwn -i"dependencies" -o"gamemodes/cidade2026.amx" -d3 -Z+ -;+
 
-      - name: Fazer Upload do AMX (Download disponível no GitHub)
+      - name: Upload AMX Gerado
         uses: actions/upload-artifact@v4
         with:
-          name: database-amx-2026
-          path: filterscripts/database.amx
-          if-no-files-found: error
+          name: Cidade-Futurista-2026
+          path: gamemodes/cidade2026.amx
