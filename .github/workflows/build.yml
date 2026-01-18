@@ -3,6 +3,8 @@ name: Compilar Cidade Futurista 2026
 on:
   push:
     branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
 
 jobs:
   build:
@@ -12,29 +14,28 @@ jobs:
       - name: Checkout código
         uses: actions/checkout@v4
 
-      - name: Instalar Compilador Pawn (Link Direto 2026)
-        run: |
-          # Download direto dos binários do compilador Zeex
-          curl -L "https://github.com" -o pawnc.tar.gz
-          tar -zxvf pawnc.tar.gz
-          sudo cp bin/pawncc /usr/local/bin/
-          sudo chmod +x /usr/local/bin/pawncc
+      - name: Instalar Compilador Pawn (3.10.10)
+        # Usando a action oficial mantida pela comunidade open.mp
+        uses: southclaws/setup-pawn@v1
+        with:
+          version: 3.10.10
 
-      - name: Configurar Biblioteca open.mp
+      - name: Baixar Bibliotecas open.mp (Obrigatório)
         run: |
-          # Baixa as definições oficiais para evitar o erro de versão
+          # Baixa as definições oficiais para não dar erro de versão
           git clone --depth 1 https://github.com omp_lib
-          mkdir -p include
-          cp -r omp_lib/*.inc include/
+          mkdir -p dependencies
+          cp -r omp_lib/*.inc dependencies/
 
-      - name: Compilar Cidade
+      - name: Compilar Gamemode 2026
         run: |
-          # Compila o arquivo principal. Certifique-se que o nome está correto abaixo:
+          # Cria a pasta caso não exista
           mkdir -p gamemodes
-          pawncc gamemodes/cidade2026.pwn -i"include" -o"gamemodes/cidade2026.amx" -d3 -Z+ -;+
+          # Compila o código apontando para as novas bibliotecas
+          pawncc gamemodes/cidade2026.pwn -i"dependencies" -o"gamemodes/cidade2026.amx" -d3 -Z+ -;+
 
-      - name: Publicar AMX
+      - name: Upload do AMX (Download disponível no GitHub)
         uses: actions/upload-artifact@v4
         with:
-          name: Servidor-Futurista-2026
+          name: Cidade-Futurista-2026-AMX
           path: gamemodes/cidade2026.amx
