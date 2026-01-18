@@ -25,8 +25,7 @@ jobs:
       - name: Baixar Compilador Pawn Zeex 3.10.10
         run: |
           # Este é o link do arquivo contido na página de releases que você enviou:
-          curl -L "https://github.com" -o pawnc.tar.gz
-          tar -zxvf pawnc.tar.gz
+          curl -L "https://github.com/pawn-lang/compiler/releases"
           echo "$(pwd)/bin" >> $GITHUB_PATH
           chmod +x ./bin/pawncc
 
