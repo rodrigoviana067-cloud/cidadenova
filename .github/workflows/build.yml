@@ -9,13 +9,25 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container:
-      # Imagem Docker oficial da comunidade com Pawn 3.10.10
-      image: compilgames/pawn:3.10.10
 
     steps:
       - name: Checkout código
         uses: actions/checkout@v4
+
+      - name: Instalar dependências do sistema
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential git wget
+
+      - name: Baixar e compilar Pawn 3.10.10
+        run: |
+          wget https://github.com/compilgames/pawn/archive/refs/tags/3.10.10.tar.gz -O pawn.tar.gz
+          tar -xzf pawn.tar.gz
+          cd pawn-3.10.10/compiler
+          make
+          sudo cp pawncc /usr/local/bin/
+          cd ../..
+          rm -rf pawn-3.10.10 pawn.tar.gz
 
       - name: Baixar Includes open.mp
         run: |
@@ -26,10 +38,9 @@ jobs:
       - name: Compilar Gamemode
         run: |
           mkdir -p gamemodes
-          # pawncc já está disponível no PATH da imagem Docker
           pawncc gamemodes/cidade2026.pwn -i"dependencies" -o"gamemodes/cidade2026.amx" -d3 -Z+
 
-      - name: Fazer Upload do AMX (Download disponível no GitHub)
+      - name: Fazer Upload do AMX
         uses: actions/upload-artifact@v4
         with:
           name: Cidade-Futurista-2026-AMX
