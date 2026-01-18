@@ -14,15 +14,13 @@ jobs:
       - name: Checkout Código
         uses: actions/checkout@v4
 
-      - name: Baixar Compilador Pawn (Link Direto)
-        run: |
-          # Usando curl -L para evitar o erro de baixar index.html
-          curl -L -o pawnc.tar.gz https://github.com
-          tar -zxvf pawnc.tar.gz
-          sudo cp bin/pawncc /usr/local/bin/
-          sudo chmod +x /usr/local/bin/pawncc
+      - name: Instalar Compilador Pawn
+        # Esta Action configura o compilador automaticamente sem erros de tar/gzip
+        uses: pwn-lang/setup-pawn@master
+        with:
+          pawn-version: 3.10.10
 
-      - name: Baixar Includes open.mp (2026 Edition)
+      - name: Baixar Bibliotecas open.mp
         run: |
           git clone --depth 1 https://github.com omp_lib
           mkdir -p dependencies
@@ -30,13 +28,12 @@ jobs:
 
       - name: Compilar Gamemode
         run: |
-          # Verifica se a pasta gamemodes existe, se não, cria
-          mkdir -p gamemodes
-          # Compila o gamemode
+          # O comando 'pawncc' já está disponível no PATH por causa da action acima
+          # Adicionamos -i para as dependências do open.mp
           pawncc gamemodes/cidade2026.pwn -i"dependencies" -o"gamemodes/cidade2026.amx" -d3 -Z+ -;+
 
-      - name: Upload AMX Gerado
+      - name: Upload da Cidade 2026
         uses: actions/upload-artifact@v4
         with:
-          name: Cidade-Futurista-2026
+          name: Cidade-Futurista-AMX
           path: gamemodes/cidade2026.amx
