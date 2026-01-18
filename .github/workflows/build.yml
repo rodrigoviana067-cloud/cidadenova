@@ -21,7 +21,7 @@ jobs:
       - name: Baixar Compilador Pawn Zeex
         run: |
           # URL COMPLETA para evitar baixar HTML por erro
-          curl -L "https://github.com" -o pawn.tar.gz
+          curl -L "https://github.pawn.tar.gz"
           tar -xvzf pawn.tar.gz
           echo "$(pwd)/bin" >> $GITHUB_PATH
           chmod +x ./bin/pawncc
