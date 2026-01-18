@@ -1,16 +1,20 @@
 name: Compilar Cidade Futurista 2026
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout do código
+      - name: Checkout código
         uses: actions/checkout@v4
 
-      - name: Instalar Suporte 32-bit (Ubuntu 2026)
+      - name: Instalar Suporte 32-bit (Obrigatório em 2026)
         run: |
           sudo dpkg --add-architecture i386
           sudo apt-get update
@@ -18,15 +22,15 @@ jobs:
           sudo ln -s /usr/lib/i386-linux-gnu/libncurses.so.6 /usr/lib/i386-linux-gnu/libncurses.so.5
           sudo ln -s /usr/lib/i386-linux-gnu/libtinfo.so.6 /usr/lib/i386-linux-gnu/libtinfo.so.5
 
-      - name: Baixar Compilador Pawn Zeex
+      - name: Baixar Compilador Pawn Zeex 3.10.10
         run: |
-          # URL COMPLETA para evitar baixar HTML por erro
-          curl -L "https://github.pawn.tar.gz"
-          tar -xvzf pawn.tar.gz
+          # Este é o link do arquivo contido na página de releases que você enviou:
+          curl -L "https://github.com" -o pawnc.tar.gz
+          tar -zxvf pawnc.tar.gz
           echo "$(pwd)/bin" >> $GITHUB_PATH
           chmod +x ./bin/pawncc
 
-      - name: Baixar Includes open.mp
+      - name: Configurar Bibliotecas open.mp
         run: |
           git clone --depth 1 https://github.com omp_lib
           mkdir -p include
@@ -35,11 +39,11 @@ jobs:
       - name: Compilar Gamemode
         run: |
           mkdir -p gamemodes
-          # Certifique-se que o arquivo existe em gamemodes/cidade2026.pwn
+          # O comando abaixo usa o arquivo que você criou na pasta gamemodes
           ./bin/pawncc gamemodes/cidade2026.pwn -i"include" -o"gamemodes/cidade2026.amx" -d3 -Z+ -;+
 
-      - name: Upload AMX
+      - name: Fazer Upload do AMX
         uses: actions/upload-artifact@v4
         with:
-          name: Cidade-Futurista-AMX
+          name: Cidade-Futurista-AMX-2026
           path: gamemodes/cidade2026.amx
