@@ -1,10 +1,6 @@
 name: Compilar Cidade Futurista 2026
 
-on: 
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+on: [push, pull_request]
 
 jobs:
   build:
@@ -14,41 +10,35 @@ jobs:
       - name: Checkout do código
         uses: actions/checkout@v4
 
-      - name: Instalar Suporte 32-bit e Bibliotecas (2026)
+      - name: Instalar Suporte 32-bit (Ubuntu 2026)
         run: |
           sudo dpkg --add-architecture i386
           sudo apt-get update
-          # Instalamos a libncurses6 pois a v5 foi descontinuada
           sudo apt-get install -y libc6:i386 libncurses6:i386 libstdc++6:i386 libtinfo6:i386
-          
-          # Criamos atalhos (links) para o compilador pensar que tem a v5
           sudo ln -s /usr/lib/i386-linux-gnu/libncurses.so.6 /usr/lib/i386-linux-gnu/libncurses.so.5
           sudo ln -s /usr/lib/i386-linux-gnu/libtinfo.so.6 /usr/lib/i386-linux-gnu/libtinfo.so.5
 
       - name: Baixar Compilador Pawn Zeex
         run: |
+          # URL COMPLETA para evitar baixar HTML por erro
           curl -L "https://github.com" -o pawn.tar.gz
           tar -xvzf pawn.tar.gz
-          # Adiciona a pasta bin ao caminho do sistema
           echo "$(pwd)/bin" >> $GITHUB_PATH
           chmod +x ./bin/pawncc
 
       - name: Baixar Includes open.mp
         run: |
-          # Baixa as bibliotecas atualizadas do open.mp para evitar erro de versão
           git clone --depth 1 https://github.com omp_lib
           mkdir -p include
           cp -r omp_lib/*.inc include/
 
-      - name: Compilar Gamemode Cidade 2026
+      - name: Compilar Gamemode
         run: |
-          # Garante que a pasta gamemodes existe
           mkdir -p gamemodes
-          # O comando abaixo compila seu código. 
-          # Verifique se o seu arquivo se chama 'cidade2026.pwn' na pasta 'gamemodes'
+          # Certifique-se que o arquivo existe em gamemodes/cidade2026.pwn
           ./bin/pawncc gamemodes/cidade2026.pwn -i"include" -o"gamemodes/cidade2026.amx" -d3 -Z+ -;+
 
-      - name: Fazer Upload do AMX (Artefato)
+      - name: Upload AMX
         uses: actions/upload-artifact@v4
         with:
           name: Cidade-Futurista-AMX
