@@ -1,0 +1,40 @@
+name: Compilar e Publicar Cidade 2026
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Código
+        uses: actions/checkout@v4
+
+      - name: Instalar Compilador Pawn (v3.10.10)
+        run: |
+          wget https://github.com
+          tar -zxvf pawnc-3.10.10-linux.tar.gz
+          sudo cp bin/pawncc /usr/local/bin/
+
+      - name: Baixar Includes open.mp (Obrigatório)
+        run: |
+          git clone --depth 1 https://github.com omp_lib
+          mkdir -p dependencies
+          cp -r omp_lib/*.inc dependencies/
+
+      - name: Compilar Script
+        run: |
+          # Compila o database.pwn e gera o database.amx
+          # -i define onde o compilador busca as bibliotecas
+          pawncc filterscripts/database.pwn -i"dependencies" -o"filterscripts/database.amx" -d3 -Z+ -;+
+
+      - name: Fazer Upload do AMX (Download disponível no GitHub)
+        uses: actions/upload-artifact@v4
+        with:
+          name: database-amx-2026
+          path: filterscripts/database.amx
+          if-no-files-found: error
