@@ -20,6 +20,10 @@ jobs:
           tar -zxvf pawnc-3.10.10-linux.tar.gz
           sudo cp bin/pawncc /usr/local/bin/
 
+      - name: Compilar Gamemode 2026
+        run: |
+          pawncc gamemodes/cidade2026.pwn -i"dependencies" -o"gamemodes/cidade2026.amx" -d3 -Z+ -;+
+
       - name: Baixar Includes open.mp (Obrigatório)
         run: |
           git clone --depth 1 https://github.com omp_lib
